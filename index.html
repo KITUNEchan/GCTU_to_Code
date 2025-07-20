@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>GCTU to Code</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>GCTU to Code</h1>
+
+  <input type="file" id="fileInput" accept=".gctu" />
+  <pre id="output"></pre>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const output = document.getElementById('output');
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const arrayBuffer = event.target.result;
+        const bytes = new Uint8Array(arrayBuffer);
+        let hexString = '';
+
+        for (let i = 0; i < bytes.length; i += 8) {
+          let first8 = '';
+          let second8 = '';
+
+          // 先頭4バイト（8文字）
+          for (let j = 0; j < 4; j++) {
+            if (i + j < bytes.length) {
+              first8 += bytes[i + j].toString(16).padStart(2, '0').toUpperCase();
+            }
+          }
+
+          first8 += ' ';
+
+          // 次の4バイト（8文字）
+          for (let j = 4; j < 8; j++) {
+            if (i + j < bytes.length) {
+              second8 += bytes[i + j].toString(16).padStart(2, '0').toUpperCase();
+            }
+          }
+
+          hexString += first8 + second8 + '\n';
+        }
+
+        output.textContent = hexString.trim();
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  </script>
+</body>
+</html>
